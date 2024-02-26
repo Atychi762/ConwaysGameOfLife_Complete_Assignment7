@@ -62,8 +62,19 @@ public class Application extends JFrame implements Runnable, MouseListener {
         // get the mouse co-ordinates when the mouse is clicked
         Point mouseClick = e.getPoint();
 
-        // toggle the state of the square at the corresponding index of the game state array
-        gameStateArray[(int)mouseClick.x/20][(int)mouseClick.y/20] = !gameStateArray[(int)mouseClick.x/20][(int)mouseClick.y/20];
+        if (!isGameStarted) {
+            // toggle the state of the square at the corresponding index of the game state array
+            gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20];
+
+            // checking if the start button has been pressed
+            if (mouseClick.x > 15 && mouseClick.x < 72 && mouseClick.y > 40 && mouseClick.y < 60) {
+                System.out.println("Start has been clicked");
+            }
+            // checking if the Random button was pressed
+            if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
+                System.out.println("Random has been clicked");
+            }
+        }
     }
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -82,24 +93,29 @@ public class Application extends JFrame implements Runnable, MouseListener {
     public void paint(Graphics g) {
         g = offscreenGraphics;
 
-        // Checking the game state
-        if(isGameStarted) {
-            // looping through the game stata array
-            for (int i = 0; i < 40; i++) {
-                for (int j = 0; j < 40; j++) {
-                    // if the current cell is true then paint a white square at those co-ordinates
-                    if (gameStateArray[i][j]) {
-                        g.setColor(Color.WHITE);
-                        g.fillRect(i * 20, j * 20, 20, 20);
-                    }
-                    // Otherwise paint a black square at those co-ordinates
-                    else {
-                        g.setColor(Color.BLACK);
-                        g.fillRect(i * 20, j * 20, 20, 20);
-                    }
+            // looping through the game state array
+        for (int i = 0; i < 40; i++) {
+            for (int j = 0; j < 40; j++) {
+                // if the current cell is true then paint a white square at those co-ordinates
+                if (gameStateArray[i][j]) {
+                    g.setColor(Color.WHITE);
+                    g.fillRect(i * 20, j * 20, 20, 20);
+                }
+                // Otherwise paint a black square at those co-ordinates
+                else {
+                    g.setColor(Color.BLACK);
+                    g.fillRect(i * 20, j * 20, 20, 20);
                 }
             }
+
         }
+        g.setColor(Color.GREEN);
+        g.fillRect(15, 40, 57, 20);
+        g.fillRect(87, 40, 87, 20);
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("TimesRoman", Font.BOLD, 20));
+        g.drawString("Start", 20, 57);
+        g.drawString("Random", 92, 57);
 
         // flip the buffers off-screen<-->on-screen
         strategy.show();
