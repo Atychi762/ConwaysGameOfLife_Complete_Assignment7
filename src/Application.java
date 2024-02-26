@@ -17,7 +17,6 @@ public class Application extends JFrame implements Runnable, MouseListener {
     public Application() {
         // adding the mouse listener
         this.addMouseListener(this);
-
         // initialise the elements of game state array to false
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
@@ -51,14 +50,12 @@ public class Application extends JFrame implements Runnable, MouseListener {
                 Thread.sleep(200);
             } catch (InterruptedException ignored) {
             }
-
             // if the game has started we need to start calling checkNeighbours every repaint
             if (isGameStarted) {
                 checkNeighbours();
             }
             // periodically calling the repaint method
             repaint();
-
         }
     }
 
