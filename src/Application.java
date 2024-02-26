@@ -3,6 +3,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Arrays;
 
 public class Application extends JFrame implements Runnable, MouseListener {
     // member data
@@ -10,7 +11,10 @@ public class Application extends JFrame implements Runnable, MouseListener {
     private final BufferStrategy strategy;
     private final Graphics offscreenGraphics;
     private final Boolean[][][] gameStateArray = new Boolean[40][40][2];
+    private int[][] neighbourArray = new int[40][40];
     private Boolean isGameStarted = false;
+    private int currentBufferState = 0;
+    private int generationCount = 0;
 
     // class constructor
     public Application(){
@@ -21,6 +25,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
         for(int i = 0; i < 40; i++){
             for(int j = 0; j < 40; j++){
                 gameStateArray[i][j][0] = false;
+                gameStateArray[i][j][1] = false;
             }
         }
 
@@ -47,8 +52,15 @@ public class Application extends JFrame implements Runnable, MouseListener {
         while (1 == 1) {
             //sleep for 1/50 sec
             try {
-                Thread.sleep(200);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
+            }
+
+            if(isGameStarted){
+                generationCount++;
+                // flip game state buffer
+                //currentBufferState = (currentBufferState + 1) % 2;
+                //checkNeighbours();
             }
             // periodically calling the repaint method
             repaint();
@@ -65,7 +77,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
                 randNum = (int) (Math.random() * 5) + 1;
                 // if the current cell is true then paint a white square at those co-ordinates
                 if (randNum == 1) {
-                    gameStateArray[i][j][0] = true;
+                    gameStateArray[i][j][currentBufferState] = true;
                 }
             }
         }
@@ -83,14 +95,30 @@ public class Application extends JFrame implements Runnable, MouseListener {
                         if (xx != 0 || yy != 0) {
                             // check cell [x+xx][y+yy][0]
                             // but.. what if x+xx==-1, etc. ?
-                                if(gameStateArray[((x+xx+40)%40)][((y+yy+40)%40)][0]){
+                                if(gameStateArray[((x+xx+40)%40)][((y+yy+40)%40)][currentBufferState]){
                                     neighbours++;
                                 }
                         }
                     }
                 }
+                neighbourArray[x][y] = neighbours;
+                // implementing the rules for conways game of life
+                // if the cell is alive and has less than 2 neighbours it dies
+                if (gameStateArray[x][y][currentBufferState] && (neighbours == 0 || neighbours == 1)) {
+                    gameStateArray[x][y][currentBufferState] = false;
+                    // if the cell is alive and has 2 or 3 neighbours it lives
+                } else if (gameStateArray[x][y][currentBufferState] && (neighbours == 2 || neighbours == 3)) {
+                    gameStateArray[x][y][currentBufferState] = true;
+                    // if the cell is alive and has more than 3 neighbours it dies
+                } else if (gameStateArray[x][y][currentBufferState] && neighbours > 3) {
+                    gameStateArray[x][y][currentBufferState] = false;
+                    // if the cell is dead and has exactly 3 neighbours it becomes alive
+                } else if ((!gameStateArray[x][y][currentBufferState]) && neighbours == 3) {
+                    gameStateArray[x][y][currentBufferState] = true;
+                }
             }
         }
+        System.out.println(Arrays.deepToString(neighbourArray));
     }
 
     // mouse events which must be implemented for MouseListener
@@ -98,6 +126,10 @@ public class Application extends JFrame implements Runnable, MouseListener {
     public void mousePressed(MouseEvent e) {
         // get the mouse co-ordinates when the mouse is clicked
         Point mouseClick = e.getPoint();
+
+        if(isGameStarted){
+            checkNeighbours();
+        }
 
         if (!isGameStarted) {
             // checking if the start button has been pressed
@@ -114,7 +146,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
             }
             else {
                 // toggle the state of the square at the corresponding index of the game state array
-                gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][0] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][0];
+                gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][currentBufferState] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][currentBufferState];
             }
 
         }
@@ -139,13 +171,16 @@ public class Application extends JFrame implements Runnable, MouseListener {
 
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 800);
+        g.setColor(Color.WHITE);
+        g.drawString((Integer.toString(generationCount)), 20, 57);
         // looping through the game state array
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
                 // if the current cell is true then paint a white square at those co-ordinates
-                if (gameStateArray[i][j][0]) {
+                if (gameStateArray[i][j][currentBufferState]) {
                     g.setColor(Color.WHITE);
-                    g.fillRect(i * 20, j * 20, 20, 20);
+                    //g.fillRect(i * 20, j * 20, 20, 20);
+                    g.drawString((Integer.toString(neighbourArray[i][j])), i*20, j*20);
                 }
             }
 
