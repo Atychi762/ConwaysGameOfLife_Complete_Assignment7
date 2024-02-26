@@ -3,26 +3,24 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import javax.swing.*;
 import java.awt.event.*;
-import java.util.Arrays;
 
 public class Application extends JFrame implements Runnable, MouseListener {
     // member data
     private static final Dimension WindowSize = new Dimension(800, 800);
     private final BufferStrategy strategy;
     private final Graphics offscreenGraphics;
+    // gameStateArray is 3d with the 3rd index referencing whether the array is visible(1) or hidden(0)
     private final Boolean[][][] gameStateArray = new Boolean[40][40][2];
     private Boolean isGameStarted = false;
-    private int generationCount = 0;
 
     // class constructor
     public Application() {
         // adding the mouse listener
         this.addMouseListener(this);
 
-        // initialise the game state array to all false
+        // initialise the elements of game state array to false
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
-                gameStateArray[i][j][0] = false;
                 gameStateArray[i][j][1] = false;
             }
         }
@@ -47,17 +45,15 @@ public class Application extends JFrame implements Runnable, MouseListener {
     }
 
     public void run() {
-        while (1 == 1) {
-            //sleep for 1/50 sec
+        while (true) {
+            //sleep for 1/5 sec
             try {
                 Thread.sleep(200);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
 
+            // if the game has started we need to start calling checkNeighbours every repaint
             if (isGameStarted) {
-                generationCount++;
-                // flip game state buffer
-                //currentBufferState = (currentBufferState + 1) % 2;
                 checkNeighbours();
             }
             // periodically calling the repaint method
@@ -66,25 +62,29 @@ public class Application extends JFrame implements Runnable, MouseListener {
         }
     }
 
+    // method creates the random starting layout when the random button id pressed
     public void randomStart() {
         int randNum;
 
         // Looping through each game state array element
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
+                // generating a random number between 1 and 5
                 randNum = (int) (Math.random() * 5) + 1;
-                // if the current cell is true then paint a white square at those co-ordinates
+                // if the random number is 1 we set the current cell to true
                 if (randNum == 1) {
-                    gameStateArray[i][j][0] = true;
                     gameStateArray[i][j][1] = true;
                 }
             }
         }
     }
 
+    // this method controls all the logic for the game of life
     public void checkNeighbours() {
+        // creating a variable to store the number of alive neighbours
         int neighbours;
 
+        // setting the "hidden" side of the array to the "visible side"
         for (int x = 0; x < 40; x++) {
             for (int y = 0; y < 40; y++) {
                 gameStateArray[x][y][0] = gameStateArray[x][y][1];
@@ -98,8 +98,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
                 for (int xx = -1; xx <= 1; xx++) {
                     for (int yy = -1; yy <= 1; yy++) {
                         if (xx != 0 || yy != 0) {
-                            // check cell [x+xx][y+yy][0]
-                            // but.. what if x+xx==-1, etc. ?
+                            // check cells around the current cell
                             if (gameStateArray[((x + xx + 40) % 40)][((y + yy + 40) % 40)][0]) {
                                 neighbours++;
                             }
@@ -131,56 +130,46 @@ public class Application extends JFrame implements Runnable, MouseListener {
         // get the mouse co-ordinates when the mouse is clicked
         Point mouseClick = e.getPoint();
 
-        if (isGameStarted) {
-            checkNeighbours();
-        }
-
+        // while the game is not started then we allow the user to draw the stating position or hit the random button
         if (!isGameStarted) {
             // checking if the start button has been pressed
             if (mouseClick.x > 15 && mouseClick.x < 72 && mouseClick.y > 40 && mouseClick.y < 60) {
                 checkNeighbours();
                 isGameStarted = true;
-                System.out.println("Start has been clicked");
             }
             // checking if the Random button was pressed
             else if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
                 randomStart();
                 isGameStarted = true;
-                System.out.println("Random has been clicked");
             } else {
                 // toggle the state of the square at the corresponding index of the game state array
-                gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][0] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][0];
                 gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1];
             }
 
         }
+        // calling repaint to improve the response time after clicking a square
         this.repaint();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
     }
-
     @Override
     public void mouseEntered(MouseEvent e) {
     }
-
     @Override
     public void mouseExited(MouseEvent e) {
     }
-
     @Override
     public void mouseClicked(MouseEvent e) {
     }
-
     @Override
     public void paint(Graphics g) {
         g = offscreenGraphics;
 
+        // drawing a black rectangle the size of the screen each iteration
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 800);
-        g.setColor(Color.WHITE);
-        g.drawString((Integer.toString(generationCount)), 20, 57);
         // looping through the game state array
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
@@ -192,6 +181,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
             }
 
         }
+        // while the game is not started then we draw the buttons for the user
         if (!isGameStarted) {
             g.setColor(Color.GREEN);
             g.fillRect(15, 40, 57, 20);
@@ -208,6 +198,5 @@ public class Application extends JFrame implements Runnable, MouseListener {
 
     public static void main(String[] args) {
         Application a = new Application();
-
     }
 }
