@@ -137,7 +137,6 @@ public class Application extends JFrame implements Runnable, MouseListener {
             // checking if the Random button was pressed
             else if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
                 randomStart();
-                isGameStarted = true;
             } else {
                 // toggle the state of the square at the corresponding index of the game state array
                 gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1];
