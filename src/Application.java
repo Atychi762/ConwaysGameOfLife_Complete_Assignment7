@@ -56,6 +56,21 @@ public class Application extends JFrame implements Runnable, MouseListener {
         }
     }
 
+    public void randomStart(){
+        int randNum;
+
+        // Looping through each game state array element
+        for (int i = 0; i < 40; i++) {
+            for (int j = 0; j < 40; j++) {
+                randNum = (int) (Math.random() * 5) + 1;
+                // if the current cell is true then paint a white square at those co-ordinates
+                if (randNum == 1) {
+                    gameStateArray[i][j][0] = true;
+                }
+            }
+        }
+    }
+
     public void checkNeighbours(){
         int  neighbours;
 
@@ -68,16 +83,12 @@ public class Application extends JFrame implements Runnable, MouseListener {
                         if (xx != 0 || yy != 0) {
                             // check cell [x+xx][y+yy][0]
                             // but.. what if x+xx==-1, etc. ?
-                                if(gameStateArray[((x+xx)%39)+1][((y+yy)%39)+1][0]){
+                                if(gameStateArray[((x+xx+40)%40)][((y+yy+40)%40)][0]){
                                     neighbours++;
                                 }
                         }
                     }
                 }
-                if(neighbours > 0){
-                    System.out.println(neighbours);
-                }
-
             }
         }
     }
@@ -91,11 +102,13 @@ public class Application extends JFrame implements Runnable, MouseListener {
         if (!isGameStarted) {
             // checking if the start button has been pressed
             if (mouseClick.x > 15 && mouseClick.x < 72 && mouseClick.y > 40 && mouseClick.y < 60) {
+                checkNeighbours();
                 isGameStarted = true;
                 System.out.println("Start has been clicked");
             }
             // checking if the Random button was pressed
             else if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
+                randomStart();
                 isGameStarted = true;
                 System.out.println("Random has been clicked");
             }
@@ -153,6 +166,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
 
     public static void main(String[] args){
         Application a = new Application();
+
     }
 
 }
