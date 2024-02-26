@@ -38,6 +38,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "test-branch",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
@@ -89,5 +90,12 @@
     <MESSAGE value="Added start and random buttons" />
     <MESSAGE value="implemented random start and neighbour check" />
     <option name="LAST_COMMIT_MESSAGE" value="implemented random start and neighbour check" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="gameStateArray[0][1]" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
